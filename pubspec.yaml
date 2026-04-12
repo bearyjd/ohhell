@@ -1,0 +1,11 @@
+name: ohhell_workspace
+publish_to: none
+
+environment:
+  sdk: "^3.9.2"
+
+workspace:
+  - client
+  - packages/ohhell_engine
+  - packages/ohhell_protocol
+  - server
