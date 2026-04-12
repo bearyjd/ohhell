@@ -13,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
+      - run: sed -i '/  - client/d' pubspec.yaml
       - run: dart pub get
       - run: dart test packages/ohhell_engine
 
@@ -21,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
+      - run: sed -i '/  - client/d' pubspec.yaml
       - run: dart pub get
       - run: dart test packages/ohhell_protocol
 
@@ -29,6 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
+      - run: sed -i '/  - client/d' pubspec.yaml
       - run: dart pub get
       - run: dart test server
 
