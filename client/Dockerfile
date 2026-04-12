@@ -14,8 +14,8 @@ COPY packages/ packages/
 COPY client/ client/
 COPY server/pubspec.yaml server/
 
-RUN dart pub get
-RUN flutter build web --release -C client
+RUN flutter pub get
+RUN cd client && flutter build web --release
 
 # Serve with nginx
 FROM nginx:alpine

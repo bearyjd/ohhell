@@ -8,7 +8,9 @@ COPY pubspec.yaml ./
 COPY packages/ohhell_engine/pubspec.yaml packages/ohhell_engine/
 COPY packages/ohhell_protocol/pubspec.yaml packages/ohhell_protocol/
 COPY server/pubspec.yaml server/
-COPY client/pubspec.yaml client/
+
+# Remove client from workspace so dart pub get doesn't require the Flutter SDK
+RUN sed -i '/  - client/d' pubspec.yaml
 
 # Copy source packages
 COPY packages/ohhell_engine/lib packages/ohhell_engine/lib
