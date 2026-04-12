@@ -1,8 +1,14 @@
-/// Support for doing something awesome.
+/// Oh Hell card game engine.
 ///
-/// More dartdocs go here.
+/// Implements the complete Oh Hell rules for 3-7 players.
+/// Pure Dart — no Flutter or network dependencies.
 library;
 
-export 'src/ohhell_engine_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/bot_player.dart';
+export 'src/card_validator.dart';
+export 'src/engine.dart';
+export 'src/exceptions.dart';
+export 'src/models/card.dart';
+export 'src/models/game_config.dart';
+export 'src/models/game_state.dart';
+export 'src/score_calculator.dart';
