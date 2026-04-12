@@ -1,16 +1,16 @@
 name: ohhell_protocol
-description: A starting point for Dart libraries or applications.
+description: Shared wire types for Oh Hell WebSocket protocol.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+publish_to: none
 
 resolution: workspace
 
 environment:
   sdk: ^3.9.2
 
-# Add regular dependencies here.
 dependencies:
-  # path: ^1.9.0
+  ohhell_engine:
+    path: ../ohhell_engine
 
 dev_dependencies:
   lints: ^5.0.0

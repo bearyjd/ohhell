@@ -1,8 +1,8 @@
-/// Support for doing something awesome.
+/// Shared wire types for the Oh Hell WebSocket protocol.
 ///
-/// More dartdocs go here.
+/// Defines JSON-serializable messages exchanged between
+/// the game server and clients.
 library;
 
-export 'src/ohhell_protocol_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/dtos.dart';
+export 'src/messages.dart';

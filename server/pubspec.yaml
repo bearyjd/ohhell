@@ -1,7 +1,7 @@
 name: server
-description: A server app using the shelf package and Docker.
+description: Oh Hell multiplayer game server.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+publish_to: none
 
 resolution: workspace
 
@@ -11,6 +11,12 @@ environment:
 dependencies:
   shelf: ^1.4.2
   shelf_router: ^1.1.2
+  shelf_web_socket: ^2.0.0
+  web_socket_channel: ^3.0.0
+  ohhell_engine:
+    path: ../packages/ohhell_engine
+  ohhell_protocol:
+    path: ../packages/ohhell_protocol
 
 dev_dependencies:
   http: ^1.2.2

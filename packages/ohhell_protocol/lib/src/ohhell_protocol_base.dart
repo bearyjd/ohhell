@@ -1,6 +1,2 @@
-// TODO: Put public facing types in this file.
-
-/// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
-}
+// This file is intentionally left empty.
+// All protocol types are in dtos.dart and messages.dart.
