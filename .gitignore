@@ -1,0 +1,42 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+pubspec.lock
+build/
+*.g.dart
+*.freezed.dart
+
+# Flutter web
+web/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Android signing
+android/key.properties
+*.keystore
+*.jks
+
+# iOS signing
+ios/*.p12
+ios/*.mobileprovision
+
+# Docker
+docker-compose.override.yml
+
+# Coverage
+coverage/
+lcov.info
+
+# Melos
+.melos_tool/
+
+# Plans / local notes
+.codesight/
+.omc/
