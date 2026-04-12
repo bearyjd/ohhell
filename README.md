@@ -20,38 +20,52 @@ ohhell/
 ├── packages/
 │   ├── ohhell_engine/    ← Pure Dart game logic (no UI, no network)
 │   └── ohhell_protocol/  ← Shared JSON wire types (client + server)
-├── client/               ← Flutter app (all platforms)
+├── client/               ← Flutter app (Android, iOS, Windows, Linux, Web)
+│   ├── Dockerfile        ← Builds Flutter web → nginx image
+│   └── nginx.conf        ← SPA routing + asset caching
 ├── server/               ← Dart shelf WebSocket game server
-└── docker/               ← Dockerfiles + nginx config
+│   └── Dockerfile        ← Multi-stage AOT build → debian:slim image
+└── docker-compose.yml    ← server + web client services
 ```
 
 ## Quick Start (Web / Docker)
 
 ```bash
-# Build Flutter web
-cd client && flutter build web --release && cd ..
-
-# Start server + web client
 docker compose up
-# Open http://localhost
+# Web client: http://localhost
+# Game server: ws://localhost:8080/ws
 ```
 
 ## Development Setup
 
 ```bash
-# Prerequisites: Flutter 3.x, Dart 3.x, Docker
+# Prerequisites: Flutter 3.x (stable), Dart 3.9+, Docker
 
-# Install dependencies (all packages)
-dart pub get          # root workspace
-cd client && flutter pub get
+# Install all workspace dependencies
+dart pub get
 
-# Run game server locally
-cd server && dart run bin/server.dart
+# Terminal 1 — game server
+dart run server/bin/server.dart
 
-# Run Flutter client (Linux desktop)
-cd client && flutter run -d linux \
-  --dart-define=SERVER_HOST=localhost \
-  --dart-define=SERVER_PORT=8080
+# Terminal 2 — Flutter client (pick a platform)
+flutter run -d linux -C client
+flutter run -d android -C client
+flutter run -d chrome -C client
+```
+
+## Running Tests
+
+```bash
+# All Dart packages
+dart test packages/ohhell_engine
+dart test packages/ohhell_protocol
+dart test server
+
+# Flutter client
+flutter test client
+
+# All at once
+dart test packages/ohhell_engine packages/ohhell_protocol server && flutter test client
 ```
 
 ## Game Rules

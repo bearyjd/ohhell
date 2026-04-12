@@ -1,39 +1,90 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# ohhell_protocol
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Shared JSON wire types for the Oh Hell WebSocket protocol. Used by both the Flutter client and the Dart server.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+- Sealed `ClientMessage` and `ServerMessage` types with exhaustive pattern matching
+- DTO classes for serializing `GameState` without exposing opponent hands
+- Full `toJson()` / `fromJson()` roundtrip support
+- 17 unit tests
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+### Sending a message (client)
 
 ```dart
-const like = 'sample';
+import 'package:ohhell_protocol/ohhell_protocol.dart';
+import 'dart:convert';
+
+// Create and join a room
+final msg = JoinRoomMessage(playerName: 'Alice', roomCode: null);
+channel.sink.add(jsonEncode(msg.toJson()));
+
+// Play a card
+final play = PlayCardMessage(suit: 'spades', rank: 'ace');
+channel.sink.add(jsonEncode(play.toJson()));
 ```
 
-## Additional information
+### Parsing incoming messages (server)
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+```dart
+channel.stream.cast<String>().listen((raw) {
+  final msg = ClientMessage.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  switch (msg) {
+    case JoinRoomMessage(:final playerName, :final roomCode):
+      // handle join
+    case PlaceBidMessage(:final bid):
+      // handle bid
+    case PlayCardMessage(:final suit, :final rank):
+      // handle card play
+    // ...
+  }
+});
+```
+
+### Sending game state (server)
+
+```dart
+// GameStateDto strips player hands — safe to broadcast to all
+final dto = GameStateDto.fromGameState(state);
+final stateMsg = GameStateMessage(state: dto);
+for (final conn in connections.values) {
+  conn.send(stateMsg);
+}
+
+// Send private hand only to its owner
+final handMsg = YourHandMessage(
+  cards: player.hand.map(CardDto.fromCard).toList(),
+);
+ownerConn.send(handMsg);
+```
+
+## Message types
+
+### ClientMessage
+
+| Class | type string | Key fields |
+|-------|------------|------------|
+| `JoinRoomMessage` | `join_room` | `playerName`, `roomCode?` |
+| `StartGameMessage` | `start_game` | — |
+| `PlaceBidMessage` | `place_bid` | `bid` |
+| `PlayCardMessage` | `play_card` | `suit`, `rank` |
+| `LeaveRoomMessage` | `leave_room` | — |
+
+### ServerMessage
+
+| Class | type string | Key fields |
+|-------|------------|------------|
+| `RoomJoinedMessage` | `room_joined` | `roomCode`, `playerId`, `isHost` |
+| `PlayerJoinedMessage` | `player_joined` | `playerId`, `playerName` |
+| `PlayerLeftMessage` | `player_left` | `playerId` |
+| `GameStateMessage` | `game_state` | `state: GameStateDto` |
+| `YourHandMessage` | `your_hand` | `cards: List<CardDto>` |
+| `ErrorMessage` | `error` | `message` |
+
+## Running tests
+
+```bash
+dart test packages/ohhell_protocol
+```
