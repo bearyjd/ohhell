@@ -39,6 +39,9 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   go_router: ^14.6.3
+  web_socket_channel: ^3.0.0
+  ohhell_protocol:
+    path: ../packages/ohhell_protocol
 
 dev_dependencies:
   flutter_test:

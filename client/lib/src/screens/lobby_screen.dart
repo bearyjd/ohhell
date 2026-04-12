@@ -1,44 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ohhell_client/src/providers/game_provider.dart';
+import 'package:ohhell_client/src/providers/session_provider.dart';
+import 'package:ohhell_client/src/providers/ws_provider.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
+import 'package:ohhell_protocol/ohhell_protocol.dart';
 
-class LobbyScreen extends StatefulWidget {
+class LobbyScreen extends ConsumerStatefulWidget {
   const LobbyScreen({required this.roomCode, super.key});
 
   final String roomCode;
 
   @override
-  State<LobbyScreen> createState() => _LobbyScreenState();
+  ConsumerState<LobbyScreen> createState() => _LobbyScreenState();
 }
 
-class _LobbyScreenState extends State<LobbyScreen> {
-  bool _isReady = false;
-
-  // Placeholder player list
-  static const _dummyPlayers = [
-    (name: 'Alice', isReady: true, isHost: true),
-    (name: 'Bob', isReady: false, isHost: false),
-    (name: 'Charlie', isReady: true, isHost: false),
-  ];
-
-  void _onToggleReady() {
-    setState(() {
-      _isReady = !_isReady;
-    });
-  }
-
-  void _onStartGame() {
-    context.go('/game/${widget.roomCode}');
-  }
-
+class _LobbyScreenState extends ConsumerState<LobbyScreen> {
   @override
   Widget build(BuildContext context) {
+    final session = ref.watch(sessionProvider);
+    final gameState = ref.watch(gameStateProvider);
+    final players = gameState?.players ?? <PlayerDto>[];
+
+    ref.listen(gameStateProvider, (prev, next) {
+      if (next == null) return;
+      final phase = next.phase;
+      if (phase == 'dealing' ||
+          phase == 'bidding' ||
+          phase == 'playing') {
+        if (mounted) {
+          context.go('/game/${widget.roomCode}');
+        }
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lobby — ${widget.roomCode}'),
+        title: Text('Lobby \u2014 ${widget.roomCode}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/home'),
+          onPressed: () {
+            ref.read(wsProvider.notifier).disconnect();
+            ref.read(sessionProvider.notifier).reset();
+            context.go('/home');
+          },
         ),
       ),
       body: Padding(
@@ -54,49 +60,45 @@ class _LobbyScreenState extends State<LobbyScreen> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: ListView.builder(
-                itemCount: _dummyPlayers.length,
-                itemBuilder: (context, index) {
-                  final player = _dummyPlayers[index];
-                  return _PlayerTile(
-                    name: player.name,
-                    isReady: player.isReady,
-                    isHost: player.isHost,
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _onToggleReady,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _isReady
-                          ? Colors.greenAccent
-                          : AppColors.textOnDark,
-                      side: BorderSide(
-                        color: _isReady
-                            ? Colors.greenAccent
-                            : AppColors.gold.withAlpha(128),
+              child: players.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Waiting for players...',
+                        style: TextStyle(
+                          color: AppColors.textOnDark,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    )
+                  : ListView.builder(
+                      itemCount: players.length,
+                      itemBuilder: (context, index) {
+                        final player = players[index];
+                        return _PlayerTile(
+                          name: player.name,
+                          isHost: index == 0,
+                        );
+                      },
                     ),
-                    child: Text(
-                      _isReady ? 'Ready!' : 'Not Ready',
-                    ),
-                  ),
+            ),
+            if (session.error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                session.error!,
+                style: const TextStyle(
+                  color: AppColors.error,
+                  fontSize: 13,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    // Placeholder: only host can start
-                    onPressed: _onStartGame,
-                    child: const Text('Start Game'),
-                  ),
-                ),
-              ],
+              ),
+            ],
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed:
+                  session.isHost && players.length >= 2
+                      ? () => ref
+                            .read(wsProvider.notifier)
+                            .send(const StartGameMessage())
+                      : null,
+              child: const Text('Start Game'),
             ),
           ],
         ),
@@ -113,7 +115,10 @@ class _RoomCodeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+      padding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 24,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFF2E7D32),
         borderRadius: BorderRadius.circular(12),
@@ -128,7 +133,10 @@ class _RoomCodeCard extends StatelessWidget {
           ),
           Text(
             roomCode,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(
                   color: AppColors.gold,
                   letterSpacing: 4,
                   fontWeight: FontWeight.bold,
@@ -143,19 +151,20 @@ class _RoomCodeCard extends StatelessWidget {
 class _PlayerTile extends StatelessWidget {
   const _PlayerTile({
     required this.name,
-    required this.isReady,
     required this.isHost,
   });
 
   final String name;
-  final bool isReady;
   final bool isHost;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        vertical: 12,
+        horizontal: 16,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFF2E7D32),
         borderRadius: BorderRadius.circular(8),
@@ -164,7 +173,8 @@ class _PlayerTile extends StatelessWidget {
         children: [
           Icon(
             Icons.person,
-            color: isHost ? AppColors.gold : AppColors.textOnDark,
+            color:
+                isHost ? AppColors.gold : AppColors.textOnDark,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -194,10 +204,6 @@ class _PlayerTile extends StatelessWidget {
                 ),
               ),
             ),
-          Icon(
-            isReady ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isReady ? Colors.greenAccent : AppColors.textOnDark,
-          ),
         ],
       ),
     );
