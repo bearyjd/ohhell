@@ -126,7 +126,7 @@ class ScorerLeaderboardScreen extends ConsumerWidget {
 
   Future<void> _share(ScorekeeperNotifier notifier) async {
     final text = notifier.exportText();
-    await SharePlus.instance.share(ShareParams(text: text));
+    await Share.share(text);
   }
 }
 
