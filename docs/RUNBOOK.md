@@ -91,8 +91,10 @@ docker compose up -d
 
 ## Releasing
 
+Merging to `main` auto-tags a patch release via CI (`auto-tag` job). For a manual minor/major release:
+
 1. Ensure all tests pass on `main`
-2. Tag the release:
+2. Tag the release manually:
    ```bash
    git tag v1.2.0
    git push --tags
@@ -113,6 +115,7 @@ docker compose up -d
 | `server-tests` | push/PR to main | `dart test server` |
 | `flutter-analyze` | push/PR to main | `flutter analyze client` |
 | `flutter-test` | push/PR to main | `flutter test client` |
+| `auto-tag` | push to main (after tests pass) | Auto-bumps semver patch tag via `mathieudutour/github-tag-action` |
 | `build-android` | tag `v*` | `flutter build apk --release` |
 | `build-linux` | tag `v*` | `flutter build linux --release` |
 | `build-windows` | tag `v*` | `flutter build windows --release` |

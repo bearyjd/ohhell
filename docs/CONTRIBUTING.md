@@ -36,7 +36,7 @@ client/                   Flutter app (all platforms)
 | `flutter run -d linux -C client` | Run Flutter client on Linux |
 | `flutter run -d android -C client` | Run Flutter client on Android |
 | `flutter run -d chrome -C client` | Run Flutter client in browser |
-| `dart test packages/ohhell_engine` | Engine unit tests (67) |
+| `dart test packages/ohhell_engine` | Engine unit tests (84) |
 | `dart test packages/ohhell_protocol` | Protocol unit tests (17) |
 | `dart test server` | Server integration tests (4) |
 | `flutter test client` | Flutter widget + unit tests (85) |
