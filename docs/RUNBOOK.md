@@ -11,7 +11,7 @@ docker compose build --no-cache
 docker compose up -d
 
 # Verify
-curl http://localhost/         # web client
+curl http://localhost:8888/     # web client
 curl http://localhost:8080/health   # server health
 ```
 
@@ -28,7 +28,7 @@ PORT=8080 ./server/bin/server
 |-------|---------|---------|
 | Server health | `curl http://localhost:8080/health` | `ok` (200) |
 | WebSocket | Connect to `ws://localhost:8080/ws`, send `{"type":"join_room","payload":{"playerName":"test"}}` | Receives `room_joined` |
-| Web client | `curl -s http://localhost/ \| grep '<title>'` | `<title>Oh Hell</title>` |
+| Web client | `curl -s http://localhost:8888/ \| grep '<title>'` | `<title>Oh Hell</title>` |
 
 Docker Compose runs the health check every 30 seconds; the web service waits for `server` to be healthy before starting.
 
