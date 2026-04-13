@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ohhell_client/src/providers/session_provider.dart';
 import 'package:ohhell_client/src/providers/ws_provider.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
+import 'package:ohhell_client/src/widgets/suit_symbols_row.dart';
 import 'package:ohhell_protocol/ohhell_protocol.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -106,42 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '♠',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: AppColors.textOnDark.withAlpha(200),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '♥',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: AppColors.suitRed,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '♦',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: AppColors.suitRed,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '♣',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: AppColors.textOnDark.withAlpha(200),
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SuitSymbolsRow(fontSize: 24),
                   const SizedBox(height: 8),
                   Text(
                     'Oh Hell',

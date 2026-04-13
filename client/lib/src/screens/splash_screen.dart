@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
+import 'package:ohhell_client/src/widgets/suit_symbols_row.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -50,42 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '♠',
-                    style: TextStyle(
-                      fontSize: 48,
-                      color: AppColors.textOnDark.withAlpha(200),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '♥',
-                    style: TextStyle(
-                      fontSize: 48,
-                      color: AppColors.suitRed,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '♦',
-                    style: TextStyle(
-                      fontSize: 48,
-                      color: AppColors.suitRed,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '♣',
-                    style: TextStyle(
-                      fontSize: 48,
-                      color: AppColors.textOnDark.withAlpha(200),
-                    ),
-                  ),
-                ],
-              ),
+              const SuitSymbolsRow(fontSize: 48),
               const SizedBox(height: 24),
               Text(
                 'Oh Hell',
