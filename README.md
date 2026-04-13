@@ -73,6 +73,7 @@ dart test packages/ohhell_engine packages/ohhell_protocol server && flutter test
 - Multiplayer over WebSocket — host a room, share a code, play with 3–7 players
 - **Single-phone scorekeeper** — track bids and tricks locally without a server
 - Bot opponents at three difficulty levels: easy, medium (`PositionalBot`), hard (`TrackingBot`)
+- Modern family-friendly UI — indigo/amber palette, Nunito font, animated splash, redesigned cards
 - Runs on Android, iOS, Windows, Linux, Web, and Docker
 
 ## Game Rules
@@ -90,4 +91,4 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for setup instructions, availab
 
 ## License
 
-MIT
+[MIT](LICENSE)
