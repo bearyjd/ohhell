@@ -32,14 +32,14 @@ ohhell/
 
 ```bash
 docker compose up
-# Web client: http://localhost
+# Web client: http://localhost:8888
 # Game server: ws://localhost:8080/ws
 ```
 
 ## Development Setup
 
 ```bash
-# Prerequisites: Flutter 3.x (stable), Dart 3.9+, Docker
+# Prerequisites: Flutter (stable channel), Dart ≥3.9, Docker
 
 # Install all workspace dependencies
 dart pub get
@@ -68,6 +68,13 @@ flutter test client
 dart test packages/ohhell_engine packages/ohhell_protocol server && flutter test client
 ```
 
+## Features
+
+- Multiplayer over WebSocket — host a room, share a code, play with 3–7 players
+- **Single-phone scorekeeper** — track bids and tricks locally without a server
+- Bot opponents at three difficulty levels: easy, medium (`PositionalBot`), hard (`TrackingBot`)
+- Runs on Android, iOS, Windows, Linux, Web, and Docker
+
 ## Game Rules
 
 - 3–7 players, standard 52-card deck
@@ -76,6 +83,10 @@ dart test packages/ohhell_engine packages/ohhell_protocol server && flutter test
 - Must follow suit if possible; trump beats all
 - **Scoring:** +10 + bid if exact; +1 per trick taken otherwise
 - Highest score after all rounds wins
+
+## Contributing
+
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for setup instructions, available commands, code style rules, and the PR checklist.
 
 ## License
 
