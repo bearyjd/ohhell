@@ -21,6 +21,7 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> {
   int? _selectedCardIndex;
+  bool _bidDialogShowing = false;
 
   void _onCardTap(int index) {
     final gameState = ref.read(gameStateProvider);
@@ -36,53 +37,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         );
   }
 
-  void _showBidDialog(int cardsPerHand) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: const Color(0xFF154A19),
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Place Your Bid',
-                style: TextStyle(
-                  color: AppColors.gold,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (int i = 0; i <= cardsPerHand; i++)
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        ref.read(wsProvider.notifier).send(
-                              PlaceBidMessage(bid: i),
-                            );
-                      },
-                      child: Text('$i'),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameStateProvider);
@@ -96,6 +50,72 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (mounted) {
           context.go('/scores/${widget.roomCode}');
         }
+        return;
+      }
+
+      // Show bid dialog on transition to needing a bid
+      final nextRound = next.currentRound;
+      final nextNeedsBid = next.phase == 'bidding' &&
+          playerId != null &&
+          nextRound != null &&
+          !nextRound.bids.containsKey(playerId);
+
+      final prevRound = prev?.currentRound;
+      final prevNeedsBid = prev?.phase == 'bidding' &&
+          playerId != null &&
+          prevRound != null &&
+          !prevRound.bids.containsKey(playerId);
+
+      if (nextNeedsBid && !prevNeedsBid && !_bidDialogShowing) {
+        _bidDialogShowing = true;
+        showModalBottomSheet<void>(
+          context: context,
+          backgroundColor: const Color(0xFF154A19),
+          shape: const RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder: (ctx) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Place Your Bid',
+                    style: TextStyle(
+                      color: AppColors.gold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (int i = 0; i <= nextRound.cardsPerHand; i++)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                            ref.read(wsProvider.notifier).send(
+                                  PlaceBidMessage(bid: i),
+                                );
+                          },
+                          child: Text('$i'),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        ).whenComplete(() {
+          if (mounted) {
+            setState(() => _bidDialogShowing = false);
+          }
+        });
       }
     });
 
@@ -108,15 +128,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         playerId != null &&
         round != null &&
         !round.bids.containsKey(playerId);
-
-    // Show bid dialog when it's our turn in bidding phase
-    if (needsBid) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _showBidDialog(round.cardsPerHand);
-        }
-      });
-    }
 
     // Convert hand to CardRecord list
     final cardRecords = hand
