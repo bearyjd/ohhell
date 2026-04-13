@@ -96,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     };
 
     return Scaffold(
-      backgroundColor: AppColors.feltGreen,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -106,13 +106,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '♠',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: AppColors.textOnDark.withAlpha(200),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '♥',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: AppColors.suitRed,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '♦',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: AppColors.suitRed,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '♣',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: AppColors.textOnDark.withAlpha(200),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     'Oh Hell',
                     style: Theme.of(context)
                         .textTheme
                         .displayMedium
                         ?.copyWith(
-                          color: AppColors.gold,
+                          color: AppColors.amber,
                           letterSpacing: 3,
                         ),
                     textAlign: TextAlign.center,
@@ -128,7 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       hintText: 'Enter your name',
                       prefixIcon: Icon(
                         Icons.person,
-                        color: AppColors.gold,
+                        color: AppColors.amber,
                       ),
                     ),
                   ),
@@ -143,7 +180,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       hintText: 'localhost:8080',
                       prefixIcon: Icon(
                         Icons.dns,
-                        color: AppColors.gold,
+                        color: AppColors.amber,
                       ),
                     ),
                   ),
@@ -166,22 +203,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  ElevatedButton.icon(
-                    onPressed:
-                        _isConnecting ? null : _onCreateGame,
-                    icon: _isConnecting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Icon(Icons.add_circle_outline),
-                    label: Text(
-                      _isConnecting
-                          ? 'Connecting...'
-                          : 'Create Game',
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isConnecting ? null : _onCreateGame,
+                      icon: _isConnecting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(Icons.add_circle_outline),
+                      label: Text(
+                        _isConnecting ? 'Connecting...' : 'Create Game',
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -203,23 +240,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton.icon(
-                        onPressed:
-                            _isConnecting ? null : _onJoinGame,
+                        onPressed: _isConnecting ? null : _onJoinGame,
                         icon: const Icon(Icons.login),
                         label: const Text('Join'),
                       ),
                     ],
                   ),
                   const SizedBox(height: 32),
-                  const Divider(color: AppColors.gold),
+                  Divider(color: AppColors.amber.withAlpha(80)),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     key: const Key('scorekeeper_button'),
                     onPressed: () => context.go('/scorer/setup'),
                     icon: const Icon(Icons.score),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.gold,
-                      side: const BorderSide(color: AppColors.gold),
+                      foregroundColor: AppColors.amber,
+                      side: const BorderSide(color: AppColors.amber),
                     ),
                     label: const Text('Scorekeeper'),
                   ),

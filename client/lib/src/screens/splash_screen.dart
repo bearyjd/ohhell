@@ -9,10 +9,24 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    );
+    _controller.forward();
+
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         context.go('/home');
@@ -21,43 +35,83 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.feltGreen,
+      backgroundColor: AppColors.background,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Oh Hell',
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: AppColors.gold,
-                    fontSize: 72,
-                    letterSpacing: 4,
-                    shadows: [
-                      const Shadow(
-                        color: Color(0x88000000),
-                        blurRadius: 8,
-                        offset: Offset(3, 3),
-                      ),
-                    ],
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '♠',
+                    style: TextStyle(
+                      fontSize: 48,
+                      color: AppColors.textOnDark.withAlpha(200),
+                    ),
                   ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'The Trick-Taking Card Game',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textOnDark.withAlpha(180),
-                    fontSize: 16,
-                    letterSpacing: 1.5,
+                  const SizedBox(width: 8),
+                  Text(
+                    '♥',
+                    style: TextStyle(
+                      fontSize: 48,
+                      color: AppColors.suitRed,
+                    ),
                   ),
-            ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(AppColors.gold),
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  Text(
+                    '♦',
+                    style: TextStyle(
+                      fontSize: 48,
+                      color: AppColors.suitRed,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '♣',
+                    style: TextStyle(
+                      fontSize: 48,
+                      color: AppColors.textOnDark.withAlpha(200),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Oh Hell',
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: AppColors.amber,
+                      fontSize: 68,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The Trick-Taking Card Game',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.textOnDark.withAlpha(160),
+                      fontSize: 15,
+                      letterSpacing: 1.2,
+                    ),
+              ),
+              const SizedBox(height: 56),
+              const CircularProgressIndicator(
+                color: AppColors.amber,
+                strokeWidth: 3,
+              ),
+            ],
+          ),
         ),
       ),
     );
