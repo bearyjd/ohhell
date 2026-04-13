@@ -59,17 +59,34 @@ class ScoreScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.gold.withAlpha(51),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.amber.withAlpha(30),
+                      AppColors.amber.withAlpha(80),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.gold),
                 ),
-                child: Text(
-                  '$winnerName wins!',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineLarge
-                      ?.copyWith(color: AppColors.gold),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  children: [
+                    const Text(
+                      '🏆',
+                      style: TextStyle(fontSize: 32),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '$winnerName wins!',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineLarge
+                          ?.copyWith(
+                            color: AppColors.gold,
+                            fontSize: 28,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
