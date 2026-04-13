@@ -3,6 +3,10 @@ import 'package:ohhell_client/src/screens/game_screen.dart';
 import 'package:ohhell_client/src/screens/home_screen.dart';
 import 'package:ohhell_client/src/screens/lobby_screen.dart';
 import 'package:ohhell_client/src/screens/score_screen.dart';
+import 'package:ohhell_client/src/screens/scorer_bidding_screen.dart';
+import 'package:ohhell_client/src/screens/scorer_leaderboard_screen.dart';
+import 'package:ohhell_client/src/screens/scorer_setup_screen.dart';
+import 'package:ohhell_client/src/screens/scorer_tricks_screen.dart';
 import 'package:ohhell_client/src/screens/splash_screen.dart';
 
 final router = GoRouter(
@@ -32,6 +36,27 @@ final router = GoRouter(
       builder: (context, state) => ScoreScreen(
         roomCode: state.pathParameters['roomCode']!,
       ),
+    ),
+    // ── Scorekeeper routes ───────────────────────────────────────────────
+    GoRoute(
+      path: '/scorer/setup',
+      builder: (_, __) => const ScorerSetupScreen(),
+    ),
+    GoRoute(
+      path: '/scorer/bid/:round',
+      builder: (context, state) => ScorerBiddingScreen(
+        round: int.parse(state.pathParameters['round']!),
+      ),
+    ),
+    GoRoute(
+      path: '/scorer/tricks/:round',
+      builder: (context, state) => ScorerTricksScreen(
+        round: int.parse(state.pathParameters['round']!),
+      ),
+    ),
+    GoRoute(
+      path: '/scorer/scores',
+      builder: (_, __) => const ScorerLeaderboardScreen(),
     ),
   ],
 );

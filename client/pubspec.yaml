@@ -41,6 +41,9 @@ dependencies:
   web_socket_channel: ^3.0.0
   ohhell_protocol:
     path: ../packages/ohhell_protocol
+  ohhell_engine:
+    path: ../packages/ohhell_engine
+  share_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:

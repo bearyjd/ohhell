@@ -39,7 +39,7 @@ client/                   Flutter app (all platforms)
 | `dart test packages/ohhell_engine` | Engine unit tests (67) |
 | `dart test packages/ohhell_protocol` | Protocol unit tests (17) |
 | `dart test server` | Server integration tests (4) |
-| `flutter test client` | Flutter widget + unit tests (44) |
+| `flutter test client` | Flutter widget + unit tests (85) |
 | `dart analyze packages/ohhell_engine` | Static analysis — engine |
 | `dart analyze packages/ohhell_protocol` | Static analysis — protocol |
 | `dart analyze server` | Static analysis — server |
