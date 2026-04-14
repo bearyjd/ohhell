@@ -226,6 +226,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Divider(color: AppColors.amber.withAlpha(80)),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
+                    onPressed: () => context.go('/local-game/setup'),
+                    icon: const Icon(Icons.smart_toy_outlined),
+                    label: const Text('Play vs Bots'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textOnDark,
+                      side: BorderSide(
+                        color: AppColors.amber.withAlpha(120),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
                     key: const Key('scorekeeper_button'),
                     onPressed: () => context.go('/scorer/setup'),
                     icon: const Icon(Icons.score),

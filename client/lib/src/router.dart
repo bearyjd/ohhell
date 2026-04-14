@@ -2,6 +2,9 @@ import 'package:go_router/go_router.dart';
 import 'package:ohhell_client/src/screens/game_screen.dart';
 import 'package:ohhell_client/src/screens/home_screen.dart';
 import 'package:ohhell_client/src/screens/lobby_screen.dart';
+import 'package:ohhell_client/src/screens/local_game_screen.dart';
+import 'package:ohhell_client/src/screens/local_game_setup_screen.dart';
+import 'package:ohhell_client/src/screens/local_scores_screen.dart';
 import 'package:ohhell_client/src/screens/score_screen.dart';
 import 'package:ohhell_client/src/screens/scorer_bidding_screen.dart';
 import 'package:ohhell_client/src/screens/scorer_leaderboard_screen.dart';
@@ -41,6 +44,19 @@ final router = GoRouter(
       builder: (context, state) => ScoreScreen(
         roomCode: state.pathParameters['roomCode']!,
       ),
+    ),
+    // ── Local game routes ────────────────────────────────────────────────
+    GoRoute(
+      path: '/local-game/setup',
+      builder: (_, __) => const LocalGameSetupScreen(),
+    ),
+    GoRoute(
+      path: '/local-game',
+      builder: (_, __) => const LocalGameScreen(),
+    ),
+    GoRoute(
+      path: '/local-scores',
+      builder: (_, __) => const LocalScoresScreen(),
     ),
     // ── Scorekeeper routes ───────────────────────────────────────────────
     GoRoute(
