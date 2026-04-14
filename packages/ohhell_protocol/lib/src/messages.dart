@@ -17,6 +17,7 @@ sealed class ClientMessage {
       'place_bid' => PlaceBidMessage.fromJson(payload),
       'play_card' => PlayCardMessage.fromJson(payload),
       'leave_room' => const LeaveRoomMessage(),
+      'reconnect_player' => ReconnectPlayerMessage.fromJson(payload),
       _ => throw FormatException('Unknown client message type: $type'),
     };
   }
@@ -100,6 +101,29 @@ final class LeaveRoomMessage extends ClientMessage {
   };
 }
 
+final class ReconnectPlayerMessage extends ClientMessage {
+  const ReconnectPlayerMessage({
+    required this.playerId,
+    required this.roomCode,
+  });
+
+  final String playerId;
+  final String roomCode;
+
+  factory ReconnectPlayerMessage.fromJson(Map<String, dynamic> json) {
+    return ReconnectPlayerMessage(
+      playerId: json['playerId'] as String,
+      roomCode: json['roomCode'] as String,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'type': 'reconnect_player',
+    'payload': {'playerId': playerId, 'roomCode': roomCode},
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Server → Client messages
 // ---------------------------------------------------------------------------
@@ -118,6 +142,7 @@ sealed class ServerMessage {
       'game_state' => GameStateMessage.fromJson(payload),
       'your_hand' => YourHandMessage.fromJson(payload),
       'error' => ErrorMessage.fromJson(payload),
+      'player_reconnected' => PlayerReconnectedMessage.fromJson(payload),
       _ => throw FormatException('Unknown server message type: $type'),
     };
   }
@@ -246,5 +271,23 @@ final class ErrorMessage extends ServerMessage {
   Map<String, dynamic> toJson() => {
     'type': 'error',
     'payload': {'message': message},
+  };
+}
+
+final class PlayerReconnectedMessage extends ServerMessage {
+  const PlayerReconnectedMessage({required this.playerId});
+
+  final String playerId;
+
+  factory PlayerReconnectedMessage.fromJson(Map<String, dynamic> json) {
+    return PlayerReconnectedMessage(
+      playerId: json['playerId'] as String,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'type': 'player_reconnected',
+    'payload': {'playerId': playerId},
   };
 }
