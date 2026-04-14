@@ -7,6 +7,7 @@ import 'package:ohhell_client/src/providers/ws_provider.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
 import 'package:ohhell_client/src/utils/card_display.dart';
 import 'package:ohhell_client/src/widgets/hand_widget.dart';
+import 'package:ohhell_client/src/widgets/network_status_overlay.dart';
 import 'package:ohhell_client/src/widgets/trick_pile_widget.dart';
 import 'package:ohhell_protocol/ohhell_protocol.dart';
 
@@ -172,65 +173,67 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         .firstOrNull
         ?.tricksWon;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Game \u2014 ${widget.roomCode}'),
-        actions: [
-          TextButton.icon(
-            onPressed: () =>
-                context.go('/scores/${widget.roomCode}'),
-            icon: const Icon(
-              Icons.scoreboard,
-              color: AppColors.gold,
-            ),
-            label: const Text(
-              'Scores',
-              style: TextStyle(color: AppColors.gold),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _ScoreInfoBar(
-            roundNumber: round?.roundNumber,
-            completedTricks: round?.completedTricks,
-            cardsPerHand: round?.cardsPerHand,
-            myBid: myBid,
-            myTricks: myTricks,
-          ),
-          if (isBiddingPhase)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 16,
+    return NetworkStatusOverlay(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Game \u2014 ${widget.roomCode}'),
+          actions: [
+            TextButton.icon(
+              onPressed: () =>
+                  context.go('/scores/${widget.roomCode}'),
+              icon: const Icon(
+                Icons.scoreboard,
+                color: AppColors.gold,
               ),
-              color: AppColors.gold.withAlpha(51),
-              child: Text(
-                needsBid
-                    ? 'Your turn to bid!'
-                    : 'Waiting for other players to bid...',
-                style: const TextStyle(
-                  color: AppColors.gold,
-                  fontWeight: FontWeight.w500,
+              label: const Text(
+                'Scores',
+                style: TextStyle(color: AppColors.gold),
+              ),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            _ScoreInfoBar(
+              roundNumber: round?.roundNumber,
+              completedTricks: round?.completedTricks,
+              cardsPerHand: round?.cardsPerHand,
+              myBid: myBid,
+              myTricks: myTricks,
+            ),
+            if (isBiddingPhase)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
                 ),
-                textAlign: TextAlign.center,
+                color: AppColors.gold.withAlpha(51),
+                child: Text(
+                  needsBid
+                      ? 'Your turn to bid!'
+                      : 'Waiting for other players to bid...',
+                  style: const TextStyle(
+                    color: AppColors.gold,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            Expanded(
+              child: Center(
+                child: TrickPileWidget(
+                  plays: trickPlays,
+                  trumpSuit: trumpDisplay,
+                ),
               ),
             ),
-          Expanded(
-            child: Center(
-              child: TrickPileWidget(
-                plays: trickPlays,
-                trumpSuit: trumpDisplay,
-              ),
+            _HandArea(
+              hand: cardRecords,
+              selectedIndex: _selectedCardIndex,
+              onCardTap: _onCardTap,
             ),
-          ),
-          _HandArea(
-            hand: cardRecords,
-            selectedIndex: _selectedCardIndex,
-            onCardTap: _onCardTap,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

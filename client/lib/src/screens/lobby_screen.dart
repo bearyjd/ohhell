@@ -5,6 +5,7 @@ import 'package:ohhell_client/src/providers/game_provider.dart';
 import 'package:ohhell_client/src/providers/session_provider.dart';
 import 'package:ohhell_client/src/providers/ws_provider.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
+import 'package:ohhell_client/src/widgets/network_status_overlay.dart';
 import 'package:ohhell_protocol/ohhell_protocol.dart';
 
 class LobbyScreen extends ConsumerStatefulWidget {
@@ -35,72 +36,74 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen> {
       }
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Lobby \u2014 ${widget.roomCode}'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            ref.read(wsProvider.notifier).disconnect();
-            ref.read(sessionProvider.notifier).reset();
-            context.go('/home');
-          },
+    return NetworkStatusOverlay(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Lobby \u2014 ${widget.roomCode}'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              ref.read(wsProvider.notifier).disconnect();
+              ref.read(sessionProvider.notifier).reset();
+              context.go('/home');
+            },
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _RoomCodeCard(roomCode: widget.roomCode),
-            const SizedBox(height: 24),
-            Text(
-              'Players',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: players.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Waiting for players...',
-                        style: TextStyle(
-                          color: AppColors.textOnDark,
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: players.length,
-                      itemBuilder: (context, index) {
-                        final player = players[index];
-                        return _PlayerTile(
-                          name: player.name,
-                          isHost: index == 0,
-                        );
-                      },
-                    ),
-            ),
-            if (session.error != null) ...[
-              const SizedBox(height: 8),
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _RoomCodeCard(roomCode: widget.roomCode),
+              const SizedBox(height: 24),
               Text(
-                session.error!,
-                style: const TextStyle(
-                  color: AppColors.error,
-                  fontSize: 13,
+                'Players',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: players.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Waiting for players...',
+                          style: TextStyle(
+                            color: AppColors.textOnDark,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: players.length,
+                        itemBuilder: (context, index) {
+                          final player = players[index];
+                          return _PlayerTile(
+                            name: player.name,
+                            isHost: index == 0,
+                          );
+                        },
+                      ),
+              ),
+              if (session.error != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  session.error!,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 13,
+                  ),
                 ),
+              ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed:
+                    session.isHost && players.length >= 2
+                        ? () => ref
+                              .read(wsProvider.notifier)
+                              .send(const StartGameMessage())
+                        : null,
+                child: const Text('Start Game'),
               ),
             ],
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed:
-                  session.isHost && players.length >= 2
-                      ? () => ref
-                            .read(wsProvider.notifier)
-                            .send(const StartGameMessage())
-                      : null,
-              child: const Text('Start Game'),
-            ),
-          ],
+          ),
         ),
       ),
     );
