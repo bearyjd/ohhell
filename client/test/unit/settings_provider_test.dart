@@ -1,0 +1,34 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ohhell_client/src/models/app_settings.dart';
+import 'package:ohhell_engine/ohhell_engine.dart';
+
+void main() {
+  group('AppSettings', () {
+    test('defaults are sane', () {
+      final s = AppSettings.defaults();
+      expect(s.botDifficulty, BotDifficulty.medium);
+      expect(s.botCount, 2);
+      expect(s.strictScoring, isFalse);
+    });
+
+    test('round-trips through JSON', () {
+      final s = AppSettings(
+        botDifficulty: BotDifficulty.hard,
+        botCount: 4,
+        strictScoring: true,
+      );
+      final json = s.toJson();
+      final restored = AppSettings.fromJson(json);
+      expect(restored.botDifficulty, BotDifficulty.hard);
+      expect(restored.botCount, 4);
+      expect(restored.strictScoring, isTrue);
+    });
+
+    test('copyWith changes only specified fields', () {
+      final s = AppSettings.defaults();
+      final updated = s.copyWith(botCount: 5);
+      expect(updated.botCount, 5);
+      expect(updated.botDifficulty, s.botDifficulty);
+    });
+  });
+}
