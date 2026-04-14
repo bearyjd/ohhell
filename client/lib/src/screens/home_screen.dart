@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ohhell_client/src/providers/embedded_server_provider.dart';
 import 'package:ohhell_client/src/providers/session_provider.dart';
 import 'package:ohhell_client/src/providers/ws_provider.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
@@ -15,9 +17,11 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  static const _defaultServerHost = 'localhost:8080';
+
   final _playerNameController = TextEditingController();
   final _serverHostController = TextEditingController(
-    text: 'localhost:8080',
+    text: _defaultServerHost,
   );
   final _joinCodeController = TextEditingController();
   bool _isConnecting = false;
@@ -69,6 +73,143 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _connectAndJoin(roomCode: code);
   }
 
+  Widget _buildHostSection(EmbeddedServerStatus serverStatus) {
+    return switch (serverStatus) {
+      ServerRunning() => _buildRunningCard(serverStatus),
+      ServerError(:final message) => _buildServerErrorBanner(message),
+      ServerStarting() || ServerIdle() => _buildStartButton(serverStatus),
+    };
+  }
+
+  Widget _buildRunningCard(ServerRunning serverStatus) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.amber.withAlpha(20),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.amber.withAlpha(120)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.wifi, color: AppColors.amber, size: 16),
+              const SizedBox(width: 6),
+              const Text(
+                'Hosting on this device',
+                style: TextStyle(
+                  color: AppColors.amber,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () =>
+                    ref.read(embeddedServerProvider.notifier).stop(),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.suitRed,
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('Stop'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Share: ${serverStatus.sharedAddress}',
+                  style: const TextStyle(
+                    color: AppColors.textOnDark,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.copy,
+                  size: 16,
+                  color: AppColors.amber,
+                ),
+                onPressed: () => Clipboard.setData(
+                  ClipboardData(text: serverStatus.sharedAddress),
+                ),
+                tooltip: 'Copy address',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServerErrorBanner(String message) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.error.withAlpha(20),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.error.withAlpha(120)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: AppColors.error, fontSize: 13),
+            ),
+          ),
+          TextButton(
+            onPressed: () =>
+                ref.read(embeddedServerProvider.notifier).start(),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.amber,
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStartButton(EmbeddedServerStatus serverStatus) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: serverStatus is ServerStarting
+            ? null
+            : () => ref.read(embeddedServerProvider.notifier).start(),
+        icon: serverStatus is ServerStarting
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.router_outlined),
+        label: Text(
+          serverStatus is ServerStarting
+              ? 'Starting...'
+              : 'Host on this device',
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.amber,
+          side: BorderSide(color: AppColors.amber.withAlpha(120)),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
@@ -88,6 +229,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         if (mounted) {
           setState(() => _isConnecting = false);
         }
+      }
+    });
+
+    final serverStatus = ref.watch(embeddedServerProvider);
+
+    ref.listen(embeddedServerProvider, (prev, next) {
+      if (next is ServerRunning &&
+          (_serverHostController.text == _defaultServerHost ||
+              _serverHostController.text.isEmpty)) {
+        _serverHostController.text = next.localAddress;
+      } else if (prev is ServerRunning && next is ServerIdle) {
+        _serverHostController.text = _defaultServerHost;
       }
     });
 
@@ -146,6 +299,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  _buildHostSection(serverStatus),
+                  const SizedBox(height: 8),
                   TextField(
                     controller: _serverHostController,
                     style: const TextStyle(

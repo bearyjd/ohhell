@@ -22,11 +22,19 @@ class EmbeddedServerNotifier
     state = const ServerStarting();
     try {
       final server = await startEmbeddedServer();
+      if (state is! ServerStarting) {
+        // stop() was called while we were binding — discard the server
+        await server.close(force: true);
+        return;
+      }
       _server = server;
       final localIp = await _getLocalIp() ?? 'localhost';
       state = ServerRunning(localIp: localIp, port: server.port);
+    } on SocketException catch (e) {
+      state = ServerError(
+          'Could not start server: ${e.osError?.message ?? e.message}');
     } on Exception catch (e) {
-      state = ServerError(e.toString());
+      state = ServerError('Server error: $e');
     }
   }
 
