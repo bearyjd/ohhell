@@ -7,6 +7,7 @@ import 'package:ohhell_client/src/screens/scorer_bidding_screen.dart';
 import 'package:ohhell_client/src/screens/scorer_leaderboard_screen.dart';
 import 'package:ohhell_client/src/screens/scorer_setup_screen.dart';
 import 'package:ohhell_client/src/screens/scorer_tricks_screen.dart';
+import 'package:ohhell_client/src/screens/settings_screen.dart';
 import 'package:ohhell_client/src/screens/splash_screen.dart';
 
 final router = GoRouter(
@@ -18,6 +19,10 @@ final router = GoRouter(
     GoRoute(
       path: '/home',
       builder: (_, __) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (_, __) => const SettingsScreen(),
     ),
     GoRoute(
       path: '/lobby/:roomCode',
