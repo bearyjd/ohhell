@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ohhell_client/src/models/app_settings.dart';
 import 'package:ohhell_engine/ohhell_engine.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ohhell_client/src/providers/settings_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('AppSettings', () {
@@ -29,6 +32,41 @@ void main() {
       final updated = s.copyWith(botCount: 5);
       expect(updated.botCount, 5);
       expect(updated.botDifficulty, s.botDifficulty);
+    });
+  });
+
+  group('AppSettingsNotifier', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test('loads defaults when no stored value', () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final settings = container.read(settingsProvider);
+      expect(settings.botDifficulty, BotDifficulty.medium);
+      expect(settings.botCount, 2);
+    });
+
+    test('updateBotDifficulty changes state', () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container
+          .read(settingsProvider.notifier)
+          .updateBotDifficulty(BotDifficulty.hard);
+      expect(
+        container.read(settingsProvider).botDifficulty,
+        BotDifficulty.hard,
+      );
+    });
+
+    test('updateBotCount clamps to 1–6', () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(settingsProvider.notifier).updateBotCount(10);
+      expect(container.read(settingsProvider).botCount, 6);
+      container.read(settingsProvider.notifier).updateBotCount(0);
+      expect(container.read(settingsProvider).botCount, 1);
     });
   });
 }
