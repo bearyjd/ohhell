@@ -71,6 +71,7 @@ dart test packages/ohhell_engine packages/ohhell_protocol server && flutter test
 ## Features
 
 - Multiplayer over WebSocket — host a room, share a code, play with 3–7 players
+- **Local WiFi play** — tap "Host on this device"; guests connect via LAN with no internet required
 - **Single-phone scorekeeper** — track bids and tricks locally without a server
 - Bot opponents at three difficulty levels: easy, medium (`PositionalBot`), hard (`TrackingBot`)
 - Modern family-friendly UI — indigo/amber palette, Nunito font, animated splash, redesigned cards

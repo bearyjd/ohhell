@@ -38,8 +38,8 @@ client/                   Flutter app (all platforms)
 | `flutter run -d chrome -C client` | Run Flutter client in browser |
 | `dart test packages/ohhell_engine` | Engine unit tests (84) |
 | `dart test packages/ohhell_protocol` | Protocol unit tests (17) |
-| `dart test server` | Server integration tests (4) |
-| `flutter test client` | Flutter widget + unit tests (85) |
+| `dart test server` | Server integration tests (7) |
+| `flutter test client` | Flutter widget + unit tests (115) |
 | `dart analyze packages/ohhell_engine` | Static analysis — engine |
 | `dart analyze packages/ohhell_protocol` | Static analysis — protocol |
 | `dart analyze server` | Static analysis — server |

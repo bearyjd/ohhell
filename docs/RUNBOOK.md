@@ -50,6 +50,15 @@ PORT=9000 dart run server/bin/server.dart
 3. On Android emulator, use `10.0.2.2:8080` instead of `localhost`
 4. On iOS simulator, `localhost` works; for device use the LAN IP
 
+### Local WiFi play — guests cannot connect
+
+1. Ensure the host device is running the app with the embedded server started ("Host on this device")
+2. Verify both host and guest devices are on the **same Wi-Fi network**
+3. The host screen shows a LAN address (e.g. `192.168.1.5:54321`) — guests enter this in the Server Host field
+4. If the address is not shown, check that the device has a Wi-Fi connection (not just mobile data)
+5. On Android, verify the app has `INTERNET` permission in the device settings
+6. Firewall or VPN software on the host device may block incoming connections — disable temporarily to test
+
 ### Docker build fails — workspace context error
 
 The Dockerfiles require being built from the **repo root**, not the subdirectory:
@@ -66,8 +75,9 @@ cd server && docker build -t ohhell-server .
 
 ```bash
 dart pub get
-dart run build_runner build --delete-conflicting-outputs -C client
 ```
+
+This project uses manual Riverpod (`StateNotifierProvider`) — there is no code generation step and no `build_runner` dependency.
 
 ## Rollback
 
