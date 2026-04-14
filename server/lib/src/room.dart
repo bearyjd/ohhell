@@ -66,6 +66,9 @@ class Room {
         _handlePlayCard(playerId, msg.suit, msg.rank);
       case LeaveRoomMessage():
         _handleLeaveRoom(playerId);
+      case ReconnectPlayerMessage():
+        // Handled by RoomManager before reaching here.
+        return;
     }
   }
 
