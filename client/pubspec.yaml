@@ -46,6 +46,7 @@ dependencies:
     path: ../packages/ohhell_engine
   share_plus: ^10.0.0
   shared_preferences: ^2.2.2
+  uuid: ^4.4.0
 
 dev_dependencies:
   flutter_test:
