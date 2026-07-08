@@ -15,16 +15,66 @@ import 'room.dart';
 class RoomManager {
   RoomManager({
     this.gracePeriod = const Duration(seconds: 30),
+    this.reapInterval = const Duration(seconds: 60),
+    this.staleRoomAge = const Duration(minutes: 5),
   });
 
   final Duration gracePeriod;
+
+  /// How often [startReaper] sweeps for idle rooms.
+  final Duration reapInterval;
+
+  /// How long a room may sit with zero connections and zero pending
+  /// disconnected players before the reaper force-removes it.
+  final Duration staleRoomAge;
+
   final Map<String, Room> _rooms = {};
   final Map<String, _DisconnectedPlayer> _disconnectedPlayers = {};
+  final Map<String, DateTime> _emptySince = {};
   final Random _random = Random.secure();
   int _nextPlayerId = 1;
+  Timer? _reaperTimer;
 
   /// All active rooms (read-only access for tests).
   Map<String, Room> get rooms => Map.unmodifiable(_rooms);
+
+  /// Starts the periodic idle-room reaper, a defense-in-depth sweep that
+  /// force-removes any room sitting with zero connections and zero
+  /// pending reconnects for longer than [staleRoomAge] — independent of
+  /// the normal grace-period removal path in [_expireGracePeriod]. No-op
+  /// if already started. Call [dispose] to stop it.
+  void startReaper() {
+    _reaperTimer ??= Timer.periodic(reapInterval, (_) => _reapIdleRooms());
+  }
+
+  /// Stops the periodic reaper started by [startReaper], if running.
+  /// Safe to call multiple times.
+  void dispose() {
+    _reaperTimer?.cancel();
+    _reaperTimer = null;
+  }
+
+  void _reapIdleRooms() {
+    final now = DateTime.now();
+    final staleCodes = <String>[];
+    for (final entry in _rooms.entries) {
+      final code = entry.key;
+      final isIdle = entry.value.connections.isEmpty &&
+          !_disconnectedPlayers.values.any((d) => d.roomCode == code);
+      if (!isIdle) {
+        _emptySince.remove(code);
+        continue;
+      }
+      final since = _emptySince.putIfAbsent(code, () => now);
+      if (now.difference(since) >= staleRoomAge) {
+        staleCodes.add(code);
+      }
+    }
+    for (final code in staleCodes) {
+      _rooms.remove(code);
+      _emptySince.remove(code);
+    }
+  }
 
   /// Handles a new WebSocket connection.
   ///

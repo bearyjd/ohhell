@@ -8,7 +8,7 @@ import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:server/src/room_manager.dart';
 
 void main() async {
-  final manager = RoomManager();
+  final manager = RoomManager()..startReaper();
 
   final router = Router()
     ..get('/ws', webSocketHandler(manager.handleNewConnection))

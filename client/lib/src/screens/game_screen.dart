@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ohhell_client/src/providers/game_provider.dart';
+import 'package:ohhell_client/src/providers/leave_session.dart';
 import 'package:ohhell_client/src/providers/session_provider.dart';
 import 'package:ohhell_client/src/providers/ws_provider.dart';
 import 'package:ohhell_client/src/theme/app_theme.dart';
@@ -23,6 +24,11 @@ class GameScreen extends ConsumerStatefulWidget {
 class _GameScreenState extends ConsumerState<GameScreen> {
   int? _selectedCardIndex;
   bool _bidDialogShowing = false;
+
+  Future<void> _leaveGame() async {
+    await leaveSession(ref.read);
+    if (mounted) context.go('/home');
+  }
 
   void _onCardTap(int index) {
     final gameState = ref.read(gameStateProvider);
@@ -173,66 +179,78 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         .firstOrNull
         ?.tricksWon;
 
-    return NetworkStatusOverlay(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Game \u2014 ${widget.roomCode}'),
-          actions: [
-            TextButton.icon(
-              onPressed: () =>
-                  context.go('/scores/${widget.roomCode}'),
-              icon: const Icon(
-                Icons.scoreboard,
-                color: AppColors.gold,
-              ),
-              label: const Text(
-                'Scores',
-                style: TextStyle(color: AppColors.gold),
-              ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _leaveGame();
+      },
+      child: NetworkStatusOverlay(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Game \u2014 ${widget.roomCode}'),
+            leading: IconButton(
+              icon: const Icon(Icons.exit_to_app),
+              tooltip: 'Leave Game',
+              onPressed: _leaveGame,
             ),
-          ],
-        ),
-        body: Column(
-          children: [
-            _ScoreInfoBar(
-              roundNumber: round?.roundNumber,
-              completedTricks: round?.completedTricks,
-              cardsPerHand: round?.cardsPerHand,
-              myBid: myBid,
-              myTricks: myTricks,
-            ),
-            if (isBiddingPhase)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 16,
+            actions: [
+              TextButton.icon(
+                onPressed: () =>
+                    context.go('/scores/${widget.roomCode}'),
+                icon: const Icon(
+                  Icons.scoreboard,
+                  color: AppColors.gold,
                 ),
-                color: AppColors.gold.withAlpha(51),
-                child: Text(
-                  needsBid
-                      ? 'Your turn to bid!'
-                      : 'Waiting for other players to bid...',
-                  style: const TextStyle(
-                    color: AppColors.gold,
-                    fontWeight: FontWeight.w500,
+                label: const Text(
+                  'Scores',
+                  style: TextStyle(color: AppColors.gold),
+                ),
+              ),
+            ],
+          ),
+          body: Column(
+            children: [
+              _ScoreInfoBar(
+                roundNumber: round?.roundNumber,
+                completedTricks: round?.completedTricks,
+                cardsPerHand: round?.cardsPerHand,
+                myBid: myBid,
+                myTricks: myTricks,
+              ),
+              if (isBiddingPhase)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 16,
                   ),
-                  textAlign: TextAlign.center,
+                  color: AppColors.gold.withAlpha(51),
+                  child: Text(
+                    needsBid
+                        ? 'Your turn to bid!'
+                        : 'Waiting for other players to bid...',
+                    style: const TextStyle(
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              Expanded(
+                child: Center(
+                  child: TrickPileWidget(
+                    plays: trickPlays,
+                    trumpSuit: trumpDisplay,
+                  ),
                 ),
               ),
-            Expanded(
-              child: Center(
-                child: TrickPileWidget(
-                  plays: trickPlays,
-                  trumpSuit: trumpDisplay,
-                ),
+              _HandArea(
+                hand: cardRecords,
+                selectedIndex: _selectedCardIndex,
+                onCardTap: _onCardTap,
               ),
-            ),
-            _HandArea(
-              hand: cardRecords,
-              selectedIndex: _selectedCardIndex,
-              onCardTap: _onCardTap,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
